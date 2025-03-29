@@ -26,7 +26,7 @@ namespace irk_enrollment {
 
 class IrkEnrollmentComponent :
 	public esphome::Component, 
-	public esp32_ble_server::BLEServiceComponent,
+	public esp32_ble_server::BLEService,
 	public esp32_ble::GATTsEventHandler
 	{
  public:
