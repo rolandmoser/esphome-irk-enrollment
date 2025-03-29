@@ -17,7 +17,7 @@ irk_enrollment_ns = cg.esphome_ns.namespace("irk_enrollment")
 IrkEnrollmentComponent = irk_enrollment_ns.class_("IrkEnrollmentComponent",
     cg.Component,
     esp32_ble.GATTsEventHandler,
-    esp32_ble_server.BLEServiceComponent,
+    esp32_ble_server.BLEService,
 )
 
 CONFIG_SCHEMA = (
