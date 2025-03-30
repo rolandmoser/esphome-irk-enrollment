@@ -39,6 +39,7 @@ void IrkEnrollmentComponent::setup() {
   auto service_uuid = esphome::esp32_ble::ESPBTUUID::from_uint16(0x1812);
   esp32_ble_server::global_ble_server->create_service(service_uuid, true);
   this->service_ = esp32_ble_server::global_ble_server->get_service(service_uuid);
+  esp32_ble::global_ble->advertising_add_service_uuid(service_uuid);
   // TODO seems like the below configuration is unneeded, but need to confirm with a "clean" device
   esp_ble_auth_req_t auth_req = ESP_LE_AUTH_BOND; //bonding with peer device after authentication
   uint8_t key_size = 16;      //the key size should be 7~16 bytes
@@ -93,14 +94,22 @@ void IrkEnrollmentComponent::gatts_event_handler(esp_gatts_cb_event_t event, esp
 		esp_ble_set_encryption(param->connect.remote_bda, ESP_BLE_SEC_ENCRYPT_MITM);
 		//ESP_LOGD(TAG, "  connect evt");
 		break;
+	default:
+		//ESP_LOGD(TAG, "  other evt");
+		break;
+	}
+}
+
+void IrkEnrollmentComponent::gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
+	switch (event) {
 	case ESP_GAP_BLE_KEY_EVT:
 		//shows the ble key info share with peer device to the user.
 		//ESP_LOGI(TAG, "key type = %s", esp_key_type_to_str(param->ble_security.ble_key.key_type));
 		//ESP_LOGD(TAG, "  ble key evt");
 		break;
-    case ESP_GAP_BLE_SEC_REQ_EVT:
-        esp_ble_gap_security_rsp(param->ble_security.ble_req.bd_addr, true);
-        break;        
+	case ESP_GAP_BLE_SEC_REQ_EVT:
+		esp_ble_gap_security_rsp(param->ble_security.ble_req.bd_addr, true);
+		break;        
 	case ESP_GAP_BLE_AUTH_CMPL_EVT: {
 		//ESP_LOGD(TAG, "  auth cmpl evt");
 		//esp_bd_addr_t bd_addr;
@@ -115,13 +124,11 @@ void IrkEnrollmentComponent::gatts_event_handler(esp_gatts_cb_event_t event, esp
 		//ESP_LOGI(TAG, "pair status = %s",
 		//		param->ble_security.auth_cmpl.success ? "success" : "fail");
 		break;
-    default:
-		//ESP_LOGD(TAG, "  other evt");
-        break;
+	default:
+		break;
 	}
 	}
 }
-
 
 }  // namespace irk_enrollment
 }  // namespace esphome
